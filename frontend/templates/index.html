@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Nutrition App</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <h1>Food Nutrition App</h1>
+    <form id="upload-form" enctype="multipart/form-data">
+        <input type="file" id="image" name="image" accept="image/*" required>
+        <button type="submit">Upload</button>
+    </form>
+    <div id="results">
+        <h2>Ingredients</h2>
+        <ul id="ingredients-list"></ul>
+        <h2>Nutritional Information</h2>
+        <ul id="nutrition-list"></ul>
+    </div>
+    <script>
+        document.getElementById('upload-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData();
+            formData.append('image', document.getElementById('image').files[0]);
+            
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            document.getElementById('ingredients-list').innerHTML = '';
+            document.getElementById('nutrition-list').innerHTML = '';
+            
+            data.ingredients.forEach(ingredient => {
+                const li = document.createElement('li');
+                li.textContent = ingredient;
+                document.getElementById('ingredients-list').appendChild(li);
+            });
+            
+            for (const [key, value] of Object.entries(data.nutritional_info)) {
+                const li = document.createElement('li');
+                li.textContent = `${key}: ${value}`;
+                document.getElementById('nutrition-list').appendChild(li);
+            }
+        });
+    </script>
+</body>
+</html>
